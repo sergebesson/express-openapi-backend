@@ -1,0 +1,29 @@
+user:
+    description: Nom de l'utilisateur
+    type: string
+
+password:
+    description: Mot de passe de l'utilisateur
+    type: string
+
+token:
+    description: Token d'identification
+    type: string
+
+authentification:
+    type: object
+    additionalProperties: false
+    required: [user, password]
+    properties:
+        user:
+            $ref: "#/user"
+        password:
+            $ref: "#/password"
+
+tokenResponse:
+    type: object
+    additionalProperties: false
+    required: [token]
+    properties:
+        token:
+            $ref: "#/token"

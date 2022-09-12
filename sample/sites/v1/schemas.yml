@@ -1,0 +1,23 @@
+error:
+    type: object
+    additionalProperties: false
+    required: [status, error_description]
+    properties:
+        status:
+            description: Code Status
+            type: integer
+        error_description:
+            description: Description of the error
+            type: string
+        errors:
+            description: Détails of errors
+            type: array
+            items:
+                type: object
+                additionalProperties: false
+                required: [errorCode, message]
+                properties:
+                    errorCode:
+                        type: string
+                    message:
+                        type: string

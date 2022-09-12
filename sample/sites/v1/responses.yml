@@ -1,0 +1,6 @@
+unauthorizedError:
+    description: Access token is missing or invalid
+    content:
+        application/json:
+            schema:
+                $ref: "schemas.yml#/error"

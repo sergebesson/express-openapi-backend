@@ -1,0 +1,49 @@
+{
+  "name": "@sbesson/express-openapi-backend",
+  "version": "1.0.2",
+  "description": "Modèle de développement d'un service REST Api",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint --ext .js,.json --ignore-path .gitignore .",
+    "depcheck": "depcheck --ignore-path=.gitignore",
+    "test": "mocha test --recursive"
+  },
+  "engines": {
+    "node": ">=16.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sergebesson/express-openapi-backend.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "author": "Serge Besson <serge@famille-besson.com>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/sergebesson/express-openapi-backend/issues"
+  },
+  "homepage": "https://github.com/sergebesson/express-openapi-backend#readme",
+  "devDependencies": {
+    "compression": "^1.7.4",
+    "depcheck": "^1.4.3",
+    "eslint": "^8.13.0",
+    "eslint-plugin-json": "^3.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mocha": "^10.0.0"
+  },
+  "dependencies": {
+    "camel-case": "^4.1.2",
+    "express": "^4.18.0",
+    "express-openapi-validator": "^4.13.8",
+    "lodash": "^4.17.21",
+    "param-case": "^3.0.4",
+    "pascal-case": "^3.1.2",
+    "require-glob": "^4.0.0",
+    "require-yml": "^2.0.0",
+    "swagger-parser": "^10.0.3",
+    "swagger-ui-express": "^4.5.0",
+    "traverse": "^0.6.6"
+  }
+}

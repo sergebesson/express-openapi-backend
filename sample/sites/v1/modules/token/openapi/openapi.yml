@@ -1,0 +1,22 @@
+openapi: 3.0.0
+info:
+    title: Authentification
+    version: 1.0.0
+tags:
+    - name: authentification
+      description: Authentification
+paths:
+    /:
+        summary: Gestion du token
+        description: Permet de générer un token pour une durée d'une heure
+        post:
+            tags: [authentification]
+            summary: Création d'un token d'authentification
+            description: Création d'un token d'authentification
+            requestBody:
+                $ref: "request-bodies.yml#/authentification"
+            responses:
+                200:
+                    $ref: "responses.yml#/token"
+                403:
+                    $ref: "responses.yml#/forbiddenError"

@@ -1,0 +1,8 @@
+info:
+    type: object
+    additionalProperties: false
+    required: [info]
+    properties:
+        info:
+            description: information public
+            type: string

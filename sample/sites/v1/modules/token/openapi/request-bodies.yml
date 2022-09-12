@@ -1,0 +1,7 @@
+authentification:
+    description: demande d'authentification
+    required: true
+    content:
+        application/json:
+            schema:
+                $ref: "schemas.yml#/authentification"

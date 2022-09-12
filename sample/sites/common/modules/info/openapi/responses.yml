@@ -1,0 +1,6 @@
+info:
+    description: informations public de l'application
+    content:
+        application/json:
+            schema:
+                $ref: "schemas.yml#/info"

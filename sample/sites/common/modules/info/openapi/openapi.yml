@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+    title: Information public
+    version: 1.0.0
+tags:
+    - name: info
+      description: Information public
+paths:
+    /:
+        summary: Information public de l'application
+        description: récupération des informations public de l'application
+        get:
+            tags: [info]
+            summary: informations public sur l'application
+            description: récupération d'informations public de l'application
+            responses:
+                200:
+                    $ref: "responses.yml#/info"

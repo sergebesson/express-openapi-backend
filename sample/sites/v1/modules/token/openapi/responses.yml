@@ -1,0 +1,13 @@
+token:
+    description: Détail du patient en file d'attente
+    content:
+        application/json:
+            schema:
+                $ref: "schemas.yml#/tokenResponse"
+
+forbiddenError:
+    description: Authentification failed
+    content:
+        application/json:
+            schema:
+                $ref: "../../../schemas.yml#/error"
