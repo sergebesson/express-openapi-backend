@@ -2,8 +2,9 @@
 "use strict";
 
 const path = require("path");
+const compression = require("compression");
 
-const { Backend } = require("../src");
+const { Backend, Router } = require("../src");
 const { Version } = require("./services/version");
 
 function handleExitSignal (server) {
@@ -33,6 +34,19 @@ const homePage = `
 </html>
 `;
 
+function getBeforeRouter () {
+	// eslint-disable-next-line new-cap
+	const beforeRouter = Router();
+	beforeRouter.use(compression());
+	beforeRouter.use((request, response, next) => {
+		response.set({
+			"x-beforeRouter-header": "test beforeRouter",
+		});
+		next();
+	});
+	return beforeRouter;
+}
+
 async function run () {
 
 	console.log();
@@ -56,6 +70,7 @@ async function run () {
 	backend.app.get("/", (request, response) => {
 		response.status(200).send(homePage);
 	});
+
 	await backend.initializeSite({
 		apiSpecFile: path.join(__dirname, "sites", "v1", "openapi.yml"),
 		modulesPaths: [
@@ -63,6 +78,7 @@ async function run () {
 			path.join(__dirname, "sites", "v1", "modules"),
 		],
 		context: { version: new Version(1) },
+		beforeRouter: getBeforeRouter(),
 	});
 	await backend.initializeSite({
 		apiSpecFile: path.join(__dirname, "sites", "v2", "openapi.yml"),
