@@ -4,6 +4,7 @@ const http = require("http");
 const https = require("https");
 const { setTimeout } = require("timers/promises");
 
+const _ = require("lodash");
 const express = require("express");
 const fs = require("fs");
 
@@ -39,7 +40,9 @@ class Backend {
 		return this.#app;
 	}
 
-	async initializeSite ({ apiSpecFile, modulesPaths, context }) {
+	async initializeSite ({
+		apiSpecFile, modulesPaths, context, beforeRouter = null, afterRouter = null,
+	}) {
 
 		const modulesManager = new ModulesManager({ modulesPaths });
 		await modulesManager.instantiate({ context });
@@ -50,9 +53,16 @@ class Backend {
 			swaggerUiOption: this.#configuration.swaggerUiOption,
 			validateResponses: this.#configuration.validateResponses || true,
 		});
+
+		if (_.isFunction(beforeRouter) && beforeRouter.name === "router") {
+			this.#app.use(openApi.sitePath, beforeRouter);
+		}
 		this.#app.use(
 			openApi.sitePath, await Backend.#apiRouterFactory({ openApi, modulesManager }),
 		);
+		if (_.isFunction(afterRouter) && afterRouter.name === "router") {
+			this.#app.use(openApi.sitePath, afterRouter);
+		}
 	}
 
 	async start () {
