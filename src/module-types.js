@@ -1,3 +1,5 @@
+// @ts-check
+
 /* eslint-disable class-methods-use-this, no-unused-vars, max-classes-per-file */
 "use strict";
 

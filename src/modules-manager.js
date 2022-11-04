@@ -1,3 +1,5 @@
+// @ts-check
+
 "use strict";
 
 const path = require("path");
@@ -10,15 +12,45 @@ const { paramCase } = require("param-case");
 const { UpdateRootRouterInterface, RouterFactoryInterface } = require("./module-interfaces");
 
 class ModulesManager {
+
+	/**
+	 * @readonly
+	 * @type {string[]}
+	 */
 	#TYPES = [ "root", "public", "authentification", "private", "error" ];
 
-	#modulesPaths = null;
+	/**
+	 * @type {string[]}
+	 */
+	#modulesPaths;
+
+	/**
+	 * @typedef {object} Module
+	 * @property {string} type
+	 * @property {string} instanceName
+	 * @property {object} instance
+	 * @property {string} apiPath
+	 * @property {string} modulePath
+	 */
+
+	/**
+	 * @type Module[]
+	 */
 	#modules = [];
 
+	/**
+	 * @param {object} params
+	 * @param {string|string[]} params.modulesPaths
+	 */
 	constructor ({ modulesPaths }) {
 		this.#modulesPaths = _.castArray(modulesPaths);
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.context
+	 * @returns {Promise<void>}
+	 */
 	async instantiate ({ context }) {
 		await Promise.all(
 			this.#modulesPaths.map(
@@ -42,10 +74,20 @@ class ModulesManager {
 		);
 	}
 
+	/**
+	 * @returns {Module[]}
+	 */
 	get modules () {
 		return this.#modules;
 	}
 
+	/**
+	 * @param {object}   params
+	 * @param {object}   params.router
+	 * @param {function} params.router.use
+	 * @param {string}   params.type
+	 * @returns {Promise<void>}
+	 */
 	async initializeRouterByType ({ router, type }) {
 		await Promise.all(
 			this.#modules
@@ -68,7 +110,17 @@ class ModulesManager {
 		);
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.modulesPath
+	 * @param {object} params.context
+	 * @returns {Promise<void>}
+	 */
 	async #instantiateModulesFromPath ({ modulesPath, context }) {
+
+		/**
+		 * @type {object}
+		 */
 		const requireModules = await requireGlob("*/index.js", {
 			cwd: modulesPath,
 			keygen: (option, fileObj) => {
@@ -78,6 +130,10 @@ class ModulesManager {
 			},
 		});
 
+		/**
+		 * @param {object} module
+		 * @param {string} moduleName
+		 */
 		_.forEach(requireModules, (module, moduleName) => {
 			const instanceName = camelCase(moduleName, { transform: camelCaseTransformMerge });
 			const className = pascalCase(moduleName, { transform: pascalCaseTransformMerge });

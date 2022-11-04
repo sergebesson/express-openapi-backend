@@ -1,3 +1,5 @@
+// @ts-check
+
 "use strict";
 
 const _ = require("lodash");
@@ -10,11 +12,31 @@ const expressOpenapiValidator = require("express-openapi-validator");
 
 class Openapi {
 
-	#apiSpec = "";
-	#apiSpecDir = "";
-	#apiSpecModulePaths = "";
-	#swaggerUiOption = {};
-	#validateResponses = true;
+	/**
+	 * @type {object}
+	 */
+	#apiSpec;
+
+	/**
+	 * @type {string}
+	 */
+	#apiSpecDir;
+
+
+	/**
+	 * @type {string[]}
+	 */
+	#apiSpecModulePaths;
+
+	/**
+	 * @type {swaggerUiExpress.SwaggerUiOptions}
+	 */
+	#swaggerUiOption;
+
+	/**
+	 * @type {boolean}
+	 */
+	#validateResponses;
 
 	static middlewareError () {
 		return (error, request, response, next) => {
@@ -32,6 +54,13 @@ class Openapi {
 		};
 	}
 
+	/**
+	 * @param {object}                            params
+	 * @param {string}                            params.apiSpecFile
+	 * @param {string[]}                          params.apiSpecModulePaths
+	 * @param {boolean}                           params.validateResponses
+	 * @param {swaggerUiExpress.SwaggerUiOptions} params.swaggerUiOption
+	 */
 	constructor ({ apiSpecFile, apiSpecModulePaths, validateResponses, swaggerUiOption }) {
 		this.#apiSpec = requireYml({ targets: apiSpecFile });
 		this.#apiSpecDir = path.dirname(apiSpecFile);
@@ -40,16 +69,27 @@ class Openapi {
 		this.#validateResponses = validateResponses || true;
 	}
 
+	/**
+	 * @returns {string}
+	 */
 	get sitePath () {
 		return new URL(this.#apiSpec.servers[0]?.url, "http://host").pathname;
 	}
 
+	/**
+	 * @param {object}   params
+	 * @param {object}   params.router
+	 * @param {function} params.router.use
+	 * @param {function} params.router.get
+	 * @returns {Promise<void>}
+	 */
 	async install ({ router }) {
 
 		const apiSpec = await this.#getApiSpec();
 
 		router.use("/", swaggerUiExpress.serveFiles(apiSpec, this.#swaggerUiOption));
-		router.get("/", swaggerUiExpress.setup(null, this.#swaggerUiOption));
+		// eslint-disable-next-line no-undefined
+		router.get("/", swaggerUiExpress.setup(undefined, this.#swaggerUiOption));
 
 		router.use(expressOpenapiValidator.middleware({
 			apiSpec,
@@ -58,6 +98,9 @@ class Openapi {
 		}));
 	}
 
+	/**
+	 * @returns {Promise<object>}
+	 */
 	async #getApiSpec () {
 		const apiSpecDir = this.#apiSpecDir;
 		traverse(this.#apiSpec).forEach(function updateRef (value) {
@@ -79,6 +122,10 @@ class Openapi {
 		return apiSpec;
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.modulePath
+	 */
 	#updateApiSpecFromModulePath ({ modulePath }) {
 		try {
 			const openapiPath = path.join(modulePath, "openapi");

@@ -1,3 +1,5 @@
+// @ts-check
+
 "use strict";
 
 const http = require("http");
@@ -11,35 +13,54 @@ const fs = require("fs");
 const { ModulesManager } = require("./modules-manager");
 const { Openapi } = require("./openapi");
 
+
+/**
+ * @typedef {object} Configuration
+ * @property {string}  host - host for listen server
+ * @property {number}  port - port for listen server
+ * @property {object}  [ssl] - Configuration ssl
+ * @property {boolean}   ssl.enable - if set to true use of https (default false)
+ * @property {string}    ssl.keyFile - key file for https
+ * @property {string}    ssl.certFile - certificat file for https
+ * @property {object}  [swaggerUiOption] - see https://www.npmjs.com/package/swagger-ui-express
+ * @property {boolean} [validateResponses=true] - boolean default true,
+ *                                         allows to control the responses by openapi validator
+ */
+
 class Backend {
 
-	#configuration = null;
+	/** @type {Configuration} */
+	#configuration;
+
+	/** @type {express.Express} */
 	#app = express();
+
+	/** @type {http.Server | https.Server | null} */
 	#server = null;
 
 	/**
-	 * @param {object} configuration :
-	 * {
-	 *   host, // host for listen server
-	 *   port, // port for listen server
-	 *   ssl: {
-	 *     enable, // if set to true use of https (default false)
-	 *     keyFile, // key file for https
-	 *     certFile, // certificat file for https
-	 *   },
-	 *   swaggerUiOption, // see https://www.npmjs.com/package/swagger-ui-express
-	 *   validateResponses, boolean default true,
-	 *                      allows to control the responses by openapi validator
-	 * }
+	 * @param {Configuration} configuration :
 	 */
 	constructor (configuration) {
 		this.#configuration = configuration;
 	}
 
+	/**
+	 * @returns {express.Express}
+	 */
 	get app () {
 		return this.#app;
 	}
 
+	/**
+	 * @param {object}              params
+	 * @param {string}              params.apiSpecFile
+	 * @param {string|string[]}     params.modulesPaths
+	 * @param {object}              params.context
+	 * @param {express.Router|null} params.beforeRouter
+	 * @param {express.Router|null} params.afterRouter
+	 * @returns {Promise<void>}
+	 */
 	async initializeSite ({
 		apiSpecFile, modulesPaths, context, beforeRouter = null, afterRouter = null,
 	}) {
@@ -65,6 +86,9 @@ class Backend {
 		}
 	}
 
+	/**
+	 * @returns {Promise<void>}
+	 */
 	async start () {
 		this.#server = this.#configuration.ssl?.enable
 			? https.createServer(
@@ -77,27 +101,33 @@ class Backend {
 			: http.createServer(this.#app);
 
 		return await new Promise((resolve, reject) => {
-			this.#server.on("error", (error) => reject(error));
-			this.#server.on("listening", () => resolve());
-			this.#server.listen({
+			this.#server?.on("error", (error) => reject(error));
+			this.#server?.on("listening", () => resolve());
+			this.#server?.listen({
 				port: this.#configuration.port,
 				host: this.#configuration.host,
 			});
 		});
 	}
 
+	/**
+	 * @returns {Promise<void>}
+	 */
 	async stop (timeout = 0) {
 		if (!this.#server) {
 			throw new Error("Server not running");
 		}
 
+		/**
+		 * @type {Promise<void>}
+		 */
 		const stopServerPromise = new Promise((resolve, reject) => {
-			this.#server.on("error", (error) => reject(error));
-			this.#server.on("close", () => {
+			this.#server?.on("error", (error) => reject(error));
+			this.#server?.on("close", () => {
 				this.#server = null;
 				resolve();
 			});
-			this.#server.close();
+			this.#server?.close();
 		});
 
 		if (timeout > 0) {
@@ -113,6 +143,12 @@ class Backend {
 		}
 	}
 
+	/**
+	 * @param {object}         params
+	 * @param {Openapi}        params.openApi
+	 * @param {ModulesManager} params.modulesManager
+	 * @returns {Promise<express.Router>}
+	 */
 	static async #apiRouterFactory ({ openApi, modulesManager }) {
 		// eslint-disable-next-line new-cap
 		const router = express.Router();

@@ -1,20 +1,34 @@
+// @ts-check
+
+/* eslint-disable require-await */
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 "use strict";
 const _ = require("lodash");
 
 class UpdateRootRouterInterface {
-	constructor () {
-		if (!_.isFunction(this.updateRootRouter)) {
-			throw new Error("You have to implement the method 'updateRootRouter'");
-		}
+
+	/**
+	 * @abstract
+	 * @param {object} params
+	 * @param {object} params.router
+	 * @param {string} params.apiPath
+	 * @returns {Promise<void>}
+	 */
+	async updateRootRouter ({ router, apiPath }) {
+		throw new Error("You have to implement the method 'updateRootRouter'");
 	}
 }
 
 class RouterFactoryInterface {
-	constructor () {
-		if (!_.isFunction(this.routerFactory)) {
-			throw new Error("You have to implement the method 'updateRootRouter'");
-		}
+
+	/**
+	 * @abstract
+	 * @returns {Promise<void>}
+	 */
+	async routerFactory () {
+		throw new Error("You have to implement the method 'updateRootRouter'");
 	}
 }
 
