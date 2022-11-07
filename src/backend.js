@@ -1,18 +1,15 @@
 // @ts-check
 
-"use strict";
+import http from "node:http";
+import https from "node:https";
+import fs from "node:fs";
+import { setTimeout } from "node:timers/promises";
 
-const http = require("http");
-const https = require("https");
-const { setTimeout } = require("timers/promises");
+import _ from "lodash";
+import express from "express";
 
-const _ = require("lodash");
-const express = require("express");
-const fs = require("fs");
-
-const { ModulesManager } = require("./modules-manager");
-const { Openapi } = require("./openapi");
-
+import { ModulesManager } from "./modules-manager.js";
+import { Openapi } from "./openapi.js";
 
 /**
  * @typedef {object} Configuration
@@ -23,11 +20,11 @@ const { Openapi } = require("./openapi");
  * @property {string}    ssl.keyFile - key file for https
  * @property {string}    ssl.certFile - certificat file for https
  * @property {object}  [swaggerUiOption] - see https://www.npmjs.com/package/swagger-ui-express
- * @property {boolean} [validateResponses=true] - boolean default true,
- *                                         allows to control the responses by openapi validator
+ * @property {boolean} [validateResponses=true] - boolean default true, allows to control
+ *                                                the responses by openapi validator
  */
 
-class Backend {
+export class Backend {
 
 	/** @type {Configuration} */
 	#configuration;
@@ -57,8 +54,8 @@ class Backend {
 	 * @param {string}              params.apiSpecFile
 	 * @param {string|string[]}     params.modulesPaths
 	 * @param {object}              params.context
-	 * @param {express.Router|null} params.beforeRouter
-	 * @param {express.Router|null} params.afterRouter
+	 * @param {express.Router|null} [params.beforeRouter]
+	 * @param {express.Router|null} [params.afterRouter]
 	 * @returns {Promise<void>}
 	 */
 	async initializeSite ({
@@ -176,5 +173,3 @@ class Backend {
 		return router;
 	}
 }
-
-module.exports = { Backend };

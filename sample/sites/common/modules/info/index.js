@@ -1,21 +1,27 @@
-"use strict";
+// @ts-check
 
-const express = require("express");
+import { PublicModuleType, Router } from "../../../../../src/index.js";
 
-const { PublicModuleType } = require("../../../../..");
-
-class Info extends PublicModuleType {
+export class Info extends PublicModuleType {
 
 	#myInfo = "public information ";
 
+	/**
+	 * @param {object} params
+	 * @param {object} params.context
+	 * @param {string} params.context.version
+	 */
 	initialize ({ context: { version } }) {
 		this.#myInfo += version;
 	}
 
+	/**
+	 * @returns {Router}
+	 */
 	// eslint-disable-next-line class-methods-use-this
 	routerFactory () {
 		// eslint-disable-next-line new-cap
-		const router = express.Router();
+		const router = Router();
 
 		router.get("/", (request, response) => {
 			response.status(200).json({ info: this.#myInfo });
@@ -24,5 +30,3 @@ class Info extends PublicModuleType {
 		return router;
 	}
 }
-
-module.exports = { Info };

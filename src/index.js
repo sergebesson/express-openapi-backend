@@ -1,9 +1,6 @@
 // @ts-check
 
-"use strict";
+export { Router } from "express";
 
-const { Router } = require("express");
-const { Backend } = require("./backend");
-const moduleTypes = require("./module-types");
-
-module.exports = { Backend, ...moduleTypes, Router };
+export { Backend } from "./backend.js";
+export * from "./module-types.js";

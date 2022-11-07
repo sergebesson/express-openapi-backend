@@ -1,17 +1,16 @@
 // @ts-check
 
-"use strict";
+import path from "node:path";
 
-const path = require("path");
-const _ = require("lodash");
-const requireGlob = require("require-glob");
-const { pascalCase, pascalCaseTransformMerge } = require("pascal-case");
-const { camelCase, camelCaseTransformMerge } = require("camel-case");
-const { paramCase } = require("param-case");
+import _ from "lodash";
+import { camelCase, camelCaseTransformMerge } from "camel-case";
+import { pascalCase, pascalCaseTransformMerge } from "pascal-case";
+import { paramCase } from "param-case";
+import fastGlob from "fast-glob";
 
-const { UpdateRootRouterInterface, RouterFactoryInterface } = require("./module-interfaces");
+import { RouterFactoryInterface, UpdateRootRouterInterface } from "./module-interfaces.js";
 
-class ModulesManager {
+export class ModulesManager {
 
 	/**
 	 * @readonly
@@ -119,27 +118,26 @@ class ModulesManager {
 	async #instantiateModulesFromPath ({ modulesPath, context }) {
 
 		/**
-		 * @type {object}
+		 * @type {Object.<string, UpdateRootRouterInterface|RouterFactoryInterface>}
 		 */
-		const requireModules = await requireGlob("*/index.js", {
-			cwd: modulesPath,
-			keygen: (option, fileObj) => {
-				const parsedPath = path.parse(fileObj.path.replace(fileObj.base, ""));
-				return parsedPath.dir.split("/")
-					.filter((value) => value !== "");
-			},
-		});
+		const requireModules = await ModulesManager.#importModules(modulesPath);
 
 		/**
-		 * @param {object} module
+		 * @param {UpdateRootRouterInterface|RouterFactoryInterface} module
 		 * @param {string} moduleName
 		 */
 		_.forEach(requireModules, (module, moduleName) => {
 			const instanceName = camelCase(moduleName, { transform: camelCaseTransformMerge });
 			const className = pascalCase(moduleName, { transform: pascalCaseTransformMerge });
 
+			/**
+			 * @type {UpdateRootRouterInterface|RouterFactoryInterface}
+			 */
 			const instance = new module[className]({ context });
 
+			/**
+			 * @type {string}
+			 */
 			const type = module[className].TYPE;
 			if (!this.#TYPES.includes(type)) {
 				throw new Error(`module '${instance.constructor.name}' has incorrect type '${type}'`);
@@ -153,8 +151,22 @@ class ModulesManager {
 				modulePath: path.join(modulesPath, moduleName),
 			});
 		});
+	}
 
+	/**
+	 * @param {string} cwd
+	 * @returns {Promise<Object.<string, UpdateRootRouterInterface|RouterFactoryInterface>>}
+	 */
+	static async #importModules (cwd) {
+		const filesIndex = await fastGlob("*/index.js", { cwd });
+
+		/**
+		 * @type {[string, UpdateRootRouterInterface|RouterFactoryInterface][]}
+		 */
+		const imports = await Promise.all(filesIndex.map(async (fileIndex) => {
+			const moduleName = path.dirname(fileIndex);
+			return [ moduleName, await import(path.join(cwd, fileIndex)) ];
+		}));
+		return _.fromPairs(imports);
 	}
 }
-
-module.exports = { ModulesManager };

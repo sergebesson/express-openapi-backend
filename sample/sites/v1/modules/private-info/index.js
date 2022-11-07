@@ -1,16 +1,17 @@
-"use strict";
+// @ts-check
 
-const express = require("express");
+import { PrivateModuleType, Router } from "../../../../../src/index.js";
 
-const { PrivateModuleType } = require("../../../../..");
-
-class PrivateInfo extends PrivateModuleType {
+export class PrivateInfo extends PrivateModuleType {
 
 	#myPrivateInfo = "private information";
 
+	/**
+	 * @returns {Router}
+	 */
 	routerFactory () {
 		// eslint-disable-next-line new-cap
-		const router = express.Router();
+		const router = Router();
 
 		router.get("/", (request, response) => {
 			response.status(200).json({ info: this.#myPrivateInfo, user: response.locals.user });
@@ -19,5 +20,3 @@ class PrivateInfo extends PrivateModuleType {
 	}
 
 }
-
-module.exports = { PrivateInfo };

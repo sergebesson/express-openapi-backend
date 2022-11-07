@@ -1,9 +1,16 @@
+// @ts-check
+
 /* eslint-disable no-console */
-"use strict";
 
-const { ErrorModuleType } = require("../../../../..");
+// eslint-disable-next-line no-unused-vars
+import { ErrorModuleType, Router } from "../../../../../src/index.js";
 
-class Errors extends ErrorModuleType {
+export class Errors extends ErrorModuleType {
+
+	/**
+	 * @param {object}   params
+	 * @param {Router}   params.router
+	 */
 	// eslint-disable-next-line class-methods-use-this
 	updateRootRouter ({ router }) {
 
@@ -47,4 +54,3 @@ class Errors extends ErrorModuleType {
 
 	}
 }
-module.exports = { Errors };

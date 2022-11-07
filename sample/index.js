@@ -1,12 +1,27 @@
+// @ts-check
+
 /* eslint-disable no-console */
-"use strict";
 
-const path = require("path");
-const compression = require("compression");
+import path from "node:path";
+import url from "node:url";
 
-const { Backend, Router } = require("../src");
-const { Version } = require("./services/version");
+// eslint-disable-next-line node/no-unpublished-import
+import compression from "compression";
 
+import { Backend, Router } from "../src/index.js";
+import { Version } from "./services/version.js";
+
+/**
+ * @constant
+ * @type {string}
+ */
+const DIRNAME = path.dirname(url.fileURLToPath(import.meta.url));
+
+
+/**
+ * @param {Backend} server
+ * @returns {NodeJS.BeforeExitListener}
+ */
 function handleExitSignal (server) {
 	return () => {
 		console.log();
@@ -18,11 +33,15 @@ function handleExitSignal (server) {
 			})
 			.catch((error) => {
 				console.log(`unable to stop server : ${error.message}`);
+				// eslint-disable-next-line no-process-exit
 				process.exit(1);
 			});
 	};
 }
 
+/**
+ * @type {string}
+ */
 const homePage = `
 <html>
 	<header><title>express openapi backend</title></header>
@@ -34,6 +53,9 @@ const homePage = `
 </html>
 `;
 
+/**
+ * @returns {Router}
+ */
 function getBeforeRouter () {
 	// eslint-disable-next-line new-cap
 	const beforeRouter = Router();
@@ -47,10 +69,18 @@ function getBeforeRouter () {
 	return beforeRouter;
 }
 
+/**
+ * @returns {Promise<void>}
+ */
+// eslint-disable-next-line max-lines-per-function
 async function run () {
 
 	console.log();
 	console.log("Server starting ...");
+
+	/**
+	 * @type {import("../src/backend.js").Configuration}
+	 */
 	const configuration = {
 		host: "localhost",
 		port: 8080,
@@ -72,19 +102,19 @@ async function run () {
 	});
 
 	await backend.initializeSite({
-		apiSpecFile: path.join(__dirname, "sites", "v1", "openapi.yml"),
+		apiSpecFile: path.join(DIRNAME, "sites", "v1", "openapi.yml"),
 		modulesPaths: [
-			path.join(__dirname, "sites", "common", "modules"),
-			path.join(__dirname, "sites", "v1", "modules"),
+			path.join(DIRNAME, "sites", "common", "modules"),
+			path.join(DIRNAME, "sites", "v1", "modules"),
 		],
 		context: { version: new Version(1) },
 		beforeRouter: getBeforeRouter(),
 	});
 	await backend.initializeSite({
-		apiSpecFile: path.join(__dirname, "sites", "v2", "openapi.yml"),
+		apiSpecFile: path.join(DIRNAME, "sites", "v2", "openapi.yml"),
 		modulesPaths: [
-			path.join(__dirname, "sites", "common", "modules"),
-			path.join(__dirname, "sites", "v2", "modules"),
+			path.join(DIRNAME, "sites", "common", "modules"),
+			path.join(DIRNAME, "sites", "v2", "modules"),
 		],
 		context: { version: new Version(2) },
 	});

@@ -1,16 +1,15 @@
 // @ts-check
 
-"use strict";
+import path from "node:path";
 
-const _ = require("lodash");
-const path = require("path");
-const requireYml = require("require-yml");
-const traverse = require("traverse");
-const swaggerParser = require("swagger-parser");
-const swaggerUiExpress = require("swagger-ui-express");
-const expressOpenapiValidator = require("express-openapi-validator");
+import _ from "lodash";
+import requireYml from "require-yml";
+import traverse from "traverse";
+import swaggerParser from "swagger-parser";
+import swaggerUiExpress from "swagger-ui-express";
+import expressOpenapiValidator from "express-openapi-validator";
 
-class Openapi {
+export class Openapi {
 
 	/**
 	 * @type {object}
@@ -169,5 +168,3 @@ class Openapi {
 			.value();
 	}
 }
-
-module.exports = { Openapi };
