@@ -1,8 +1,14 @@
-"use strict";
+// @ts-check
 
-const { RootModuleType } = require("../../../../..");
+// eslint-disable-next-line no-unused-vars
+import { RootModuleType, Router } from "../../../../../src/index.js";
 
-class Header extends RootModuleType {
+export class Header extends RootModuleType {
+
+	/**
+	 * @param {object} params
+	 * @param {Router} params.router
+	 */
 	// eslint-disable-next-line class-methods-use-this
 	updateRootRouter ({ router }) {
 		router.use((request, response, next) => {
@@ -14,5 +20,3 @@ class Header extends RootModuleType {
 		});
 	}
 }
-
-module.exports = { Header };

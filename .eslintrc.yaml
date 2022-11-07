@@ -4,7 +4,11 @@ env:
   es2022: true
 extends:
   - plugin:json/recommended
+  - plugin:node/recommended-module
   - eslint:recommended
+parserOptions:
+  sourceType: module
+  ecmaVersion: "2022"
 rules:
   # rules "Possible Problems" https://eslint.org/docs/rules/#possible-problems
   array-callback-return: [error, { checkForEach: true }]
@@ -123,7 +127,7 @@ rules:
   quote-props: [error, as-needed]
   radix: error
   require-await: error
-  sort-imports: error
+  sort-imports: [error, { ignoreDeclarationSort: true }]
   spaced-comment: error
   strict: error
   symbol-description: error
@@ -185,3 +189,5 @@ rules:
   template-tag-spacing: error
   unicode-bom: error
   yield-star-spacing: error
+  node/file-extension-in-import: ["error", "always"]
+  node/no-unsupported-features/es-syntax: off

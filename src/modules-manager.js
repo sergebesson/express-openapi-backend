@@ -1,24 +1,55 @@
-"use strict";
+// @ts-check
 
-const path = require("path");
-const _ = require("lodash");
-const requireGlob = require("require-glob");
-const { pascalCase, pascalCaseTransformMerge } = require("pascal-case");
-const { camelCase, camelCaseTransformMerge } = require("camel-case");
-const { paramCase } = require("param-case");
+import path from "node:path";
 
-const { UpdateRootRouterInterface, RouterFactoryInterface } = require("./module-interfaces");
+import _ from "lodash";
+import { camelCase, camelCaseTransformMerge } from "camel-case";
+import { pascalCase, pascalCaseTransformMerge } from "pascal-case";
+import { paramCase } from "param-case";
+import fastGlob from "fast-glob";
 
-class ModulesManager {
+import { RouterFactoryInterface, UpdateRootRouterInterface } from "./module-interfaces.js";
+
+export class ModulesManager {
+
+	/**
+	 * @readonly
+	 * @type {string[]}
+	 */
 	#TYPES = [ "root", "public", "authentification", "private", "error" ];
 
-	#modulesPaths = null;
+	/**
+	 * @type {string[]}
+	 */
+	#modulesPaths;
+
+	/**
+	 * @typedef {object} Module
+	 * @property {string} type
+	 * @property {string} instanceName
+	 * @property {object} instance
+	 * @property {string} apiPath
+	 * @property {string} modulePath
+	 */
+
+	/**
+	 * @type Module[]
+	 */
 	#modules = [];
 
+	/**
+	 * @param {object} params
+	 * @param {string|string[]} params.modulesPaths
+	 */
 	constructor ({ modulesPaths }) {
 		this.#modulesPaths = _.castArray(modulesPaths);
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.context
+	 * @returns {Promise<void>}
+	 */
 	async instantiate ({ context }) {
 		await Promise.all(
 			this.#modulesPaths.map(
@@ -42,10 +73,20 @@ class ModulesManager {
 		);
 	}
 
+	/**
+	 * @returns {Module[]}
+	 */
 	get modules () {
 		return this.#modules;
 	}
 
+	/**
+	 * @param {object}   params
+	 * @param {object}   params.router
+	 * @param {function} params.router.use
+	 * @param {string}   params.type
+	 * @returns {Promise<void>}
+	 */
 	async initializeRouterByType ({ router, type }) {
 		await Promise.all(
 			this.#modules
@@ -68,22 +109,35 @@ class ModulesManager {
 		);
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.modulesPath
+	 * @param {object} params.context
+	 * @returns {Promise<void>}
+	 */
 	async #instantiateModulesFromPath ({ modulesPath, context }) {
-		const requireModules = await requireGlob("*/index.js", {
-			cwd: modulesPath,
-			keygen: (option, fileObj) => {
-				const parsedPath = path.parse(fileObj.path.replace(fileObj.base, ""));
-				return parsedPath.dir.split("/")
-					.filter((value) => value !== "");
-			},
-		});
 
+		/**
+		 * @type {Object.<string, UpdateRootRouterInterface|RouterFactoryInterface>}
+		 */
+		const requireModules = await ModulesManager.#importModules(modulesPath);
+
+		/**
+		 * @param {UpdateRootRouterInterface|RouterFactoryInterface} module
+		 * @param {string} moduleName
+		 */
 		_.forEach(requireModules, (module, moduleName) => {
 			const instanceName = camelCase(moduleName, { transform: camelCaseTransformMerge });
 			const className = pascalCase(moduleName, { transform: pascalCaseTransformMerge });
 
+			/**
+			 * @type {UpdateRootRouterInterface|RouterFactoryInterface}
+			 */
 			const instance = new module[className]({ context });
 
+			/**
+			 * @type {string}
+			 */
 			const type = module[className].TYPE;
 			if (!this.#TYPES.includes(type)) {
 				throw new Error(`module '${instance.constructor.name}' has incorrect type '${type}'`);
@@ -97,8 +151,22 @@ class ModulesManager {
 				modulePath: path.join(modulesPath, moduleName),
 			});
 		});
+	}
 
+	/**
+	 * @param {string} cwd
+	 * @returns {Promise<Object.<string, UpdateRootRouterInterface|RouterFactoryInterface>>}
+	 */
+	static async #importModules (cwd) {
+		const filesIndex = await fastGlob("*/index.js", { cwd });
+
+		/**
+		 * @type {[string, UpdateRootRouterInterface|RouterFactoryInterface][]}
+		 */
+		const imports = await Promise.all(filesIndex.map(async (fileIndex) => {
+			const moduleName = path.dirname(fileIndex);
+			return [ moduleName, await import(path.join(cwd, fileIndex)) ];
+		}));
+		return _.fromPairs(imports);
 	}
 }
-
-module.exports = { ModulesManager };

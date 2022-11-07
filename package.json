@@ -1,5 +1,6 @@
 {
   "name": "@sbesson/express-openapi-backend",
+  "type": "module",
   "version": "1.1.0",
   "description": "Modèle de développement d'un service REST Api",
   "main": "src/index.js",
@@ -30,6 +31,7 @@
     "depcheck": "^1.4.3",
     "eslint": "^8.13.0",
     "eslint-plugin-json": "^3.1.0",
+    "eslint-plugin-node": "^11.1.0",
     "jsonwebtoken": "^8.5.1",
     "mocha": "^10.0.0"
   },
@@ -37,10 +39,10 @@
     "camel-case": "^4.1.2",
     "express": "^4.18.0",
     "express-openapi-validator": "^4.13.8",
+    "fast-glob": "^3.2.12",
     "lodash": "^4.17.21",
     "param-case": "^3.0.4",
     "pascal-case": "^3.1.2",
-    "require-glob": "^4.0.0",
     "require-yml": "^2.0.0",
     "swagger-parser": "^10.0.3",
     "swagger-ui-express": "^4.5.0",

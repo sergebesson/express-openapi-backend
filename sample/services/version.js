@@ -1,14 +1,19 @@
-"use strict";
+// @ts-check
 
-class Version {
+export class Version {
 	#version = 0;
+
+	/**
+	 * @param {number} version
+	 */
 	constructor (version) {
 		this.#version = version;
 	}
 
+	/**
+	 * @returns {string}
+	 */
 	toString () {
 		return `version ${this.#version}`;
 	}
 }
-
-module.exports = { Version };
