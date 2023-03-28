@@ -28,7 +28,6 @@ export class ModulesManager {
 	 * @property {string} type
 	 * @property {string} instanceName
 	 * @property {object} instance
-	 * @property {string} apiPath
 	 * @property {string} modulePath
 	 */
 
@@ -95,12 +94,12 @@ export class ModulesManager {
 					async (module) => {
 						if (module.instance instanceof UpdateRootRouterInterface) {
 							return await module.instance.updateRootRouter(
-								{ router, apiPath: module.apiPath },
+								{ router },
 							);
 						}
 						if (module.instance instanceof RouterFactoryInterface) {
 							return router.use(
-								`/${module.apiPath}`, await module.instance.routerFactory(),
+								`/${module.instance.apiPath}`, await module.instance.routerFactory(),
 							);
 						}
 						throw new Error(`module ${module.instance.constructor.name} is not a valid module`);
@@ -134,6 +133,7 @@ export class ModulesManager {
 			 * @type {UpdateRootRouterInterface|RouterFactoryInterface}
 			 */
 			const instance = new module[className]({ context });
+			instance.apiPath = paramCase(instanceName);
 
 			/**
 			 * @type {string}
@@ -147,7 +147,6 @@ export class ModulesManager {
 				type,
 				instanceName,
 				instance,
-				apiPath: paramCase(instanceName),
 				modulePath: path.join(modulesPath, moduleName),
 			});
 		});
