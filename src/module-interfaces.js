@@ -10,6 +10,9 @@ import _ from "lodash";
 
 export class UpdateRootRouterInterface {
 
+	/** @type {string} */
+	apiPath;
+
 	/**
 	 * @abstract
 	 * @param {object} params
@@ -23,6 +26,9 @@ export class UpdateRootRouterInterface {
 }
 
 export class RouterFactoryInterface {
+
+	/** @type {string} */
+	apiPath;
 
 	/**
 	 * @abstract

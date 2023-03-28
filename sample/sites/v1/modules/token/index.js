@@ -18,25 +18,23 @@ export class Token extends AuthentificationModuleType {
 	/**
 	 * @param {object} params
 	 * @param {Router} params.router
-	 * @param {string} params.apiPath
 	 */
 	// eslint-disable-next-line class-methods-use-this
-	updateRootRouter ({ router, apiPath }) {
+	updateRootRouter ({ router }) {
 
 		// Token creation route
-		router.post(`/${apiPath}`, (request, response) => this.#createMiddleware(request, response));
+		router.post(`/${this.apiPath}`, (request, response) => this.#createMiddleware(request, response));
 
 		// Check token
 		router.use((request, response, next) => {
 			const [ , token ] = request.headers.authorization?.split(" ") || [];
 			try {
-
 				const decoded = jwt.verify(token, Token.#secretKey);
 				if (typeof decoded === "string") {
 					throw new Error(`Error decoded token - ${decoded}`);
 				}
 				response.locals.user = decoded.user;
-			} catch {
+			} catch (error) {
 				response.status(401).json({ status: 401, error_description: "Unauthorized" });
 				return;
 			}
