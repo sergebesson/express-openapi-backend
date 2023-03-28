@@ -46,7 +46,7 @@ const { RootModuleInterface } = require("@sbesson/express-openapi-backend");
 class Module1 extends RootModuleInterface {
   constructor({ context }) {} // facultatif
   async initialize({ modules }) {} // facultatif, peut ne pas être async !
-  async updateRootRouter({ router, apiPath }) { // peut ne pas être async
+  async updateRootRouter({ router }) { // peut ne pas être async
     router.use(function middleware(req, res, next) {}) // for exemple
     ...
   }
@@ -85,9 +85,9 @@ const { AuthentificationModuleInterface } = require("@sbesson/express-openapi-ba
 class Module1 extends AuthentificationModuleInterface {
   constructor({ context }) {} // facultatif
   async initialize({ modules }) {} // facultatif, peut ne pas être async !
-  async updateRootRouter({ router, apiPath }) {} // peut ne pas être async
+  async updateRootRouter({ router }) {} // peut ne pas être async
     router.use(function middleware(req, res, next) {/* check authentification */}) // for example
-    router.post(`/${apiPath}/token`, function middleware(req, res, next) {/* create token */})
+    router.post(`/${this.apiPath}/token`, function middleware(req, res, next) {/* create token */})
     ...
   }
 }
@@ -128,11 +128,11 @@ const { ErrorModuleInterface } = require("@sbesson/express-openapi-backend");
 class Module1 extends ErrorModuleInterface {
   constructor({ context }) {} // facultatif
   async initialize({ modules }) {} // facultatif, peut ne pas être async !
-  async updateRootRouter({ router, apiPath }) {} // peut ne pas être async
+  async updateRootRouter({ router }) {} // peut ne pas être async
     // error global
     router.use(function middleware(error, req, res, next) {/* manage error */})
     // error module
-    router.use(`/${apiPath}`, function errorMiddleware(error, req, res, next) {/* manage error */})
+    router.use(`/${this.apiPath}`, function errorMiddleware(error, req, res, next) {/* manage error */})
     ...
   }
 }
