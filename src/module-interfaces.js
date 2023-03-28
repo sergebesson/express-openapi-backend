@@ -17,10 +17,9 @@ export class UpdateRootRouterInterface {
 	 * @abstract
 	 * @param {object} params
 	 * @param {object} params.router
-	 * @param {string} [params.apiPath]
 	 * @returns {Promise<void>|void}
 	 */
-	updateRootRouter ({ router, apiPath }) {
+	updateRootRouter ({ router }) {
 		throw new Error("You have to implement the method 'updateRootRouter'");
 	}
 }
