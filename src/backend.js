@@ -20,7 +20,7 @@ import { Openapi } from "./openapi.js";
  * @property {string}    ssl.keyFile - key file for https
  * @property {string}    ssl.certFile - certificat file for https
  * @property {object}  [swaggerUiOption] - see https://www.npmjs.com/package/swagger-ui-express
- * @property {boolean} [validateResponses=true] - boolean default true, allows to control
+ * @property {boolean?} [validateResponses=true] - boolean default true, allows to control
  *                                                the responses by openapi validator
  */
 
@@ -50,6 +50,13 @@ export class Backend {
 	}
 
 	/**
+	 * @returns {http.Server | https.Server | null}
+	 */
+	get server () {
+		return this.#server;
+	}
+
+	/**
 	 * @param {object}              params
 	 * @param {string}              params.apiSpecFile
 	 * @param {string|string[]}     params.modulesPaths
@@ -69,7 +76,9 @@ export class Backend {
 			apiSpecFile,
 			apiSpecModulePaths: modulesManager.modules.map(({ modulePath }) => modulePath),
 			swaggerUiOption: this.#configuration.swaggerUiOption,
-			validateResponses: this.#configuration.validateResponses || true,
+			validateResponses: _.isNil(this.#configuration.validateResponses)
+				? true
+				: this.#configuration.validateResponses,
 		});
 
 		if (_.isFunction(beforeRouter) && beforeRouter.name === "router") {
