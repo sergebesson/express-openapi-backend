@@ -158,11 +158,11 @@ export class Backend {
 	static async #apiRouterFactory ({ openApi, modulesManager }) {
 		// eslint-disable-next-line new-cap
 		const router = express.Router();
-		router.use(express.json());
 
 		// root modules
 		await modulesManager.initializeRouterByType({ router, type: "root" });
 
+		router.use(express.json());
 		await openApi.install({ router });
 
 		// public modules
