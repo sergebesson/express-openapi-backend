@@ -3,9 +3,7 @@
 import path from "node:path";
 
 import _ from "lodash";
-import { camelCase, camelCaseTransformMerge } from "camel-case";
-import { pascalCase, pascalCaseTransformMerge } from "pascal-case";
-import { paramCase } from "param-case";
+import { camelCase, kebabCase, pascalCase } from "change-case";
 import fastGlob from "fast-glob";
 
 import { RouterFactoryInterface, UpdateRootRouterInterface } from "./module-interfaces.js";
@@ -126,14 +124,14 @@ export class ModulesManager {
 		 * @param {string} moduleName
 		 */
 		_.forEach(requireModules, (module, moduleName) => {
-			const instanceName = camelCase(moduleName, { transform: camelCaseTransformMerge });
-			const className = pascalCase(moduleName, { transform: pascalCaseTransformMerge });
+			const instanceName = camelCase(moduleName, { mergeAmbiguousCharacters: true });
+			const className = pascalCase(moduleName, { mergeAmbiguousCharacters: true });
 
 			/**
 			 * @type {UpdateRootRouterInterface|RouterFactoryInterface}
 			 */
 			const instance = new module[className]({ context });
-			instance.apiPath = paramCase(instanceName);
+			instance.apiPath = kebabCase(instanceName);
 
 			/**
 			 * @type {string}
